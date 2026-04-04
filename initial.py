@@ -125,24 +125,26 @@ run("sudo systemctl restart lighttpd", "STEP 5: PORTAL")
 print("\n📲 Enabling captive portal auto-popup...")
 
 portal_conf = """
+server.modules += ("mod_rewrite")
+
 $HTTP["host"] =~ "captive.apple.com" {
-    url.redirect = (".*" => "http://192.168.12.1")
+    url.rewrite = (".*" => "http://192.168.12.1")
 }
 
 $HTTP["host"] =~ "connectivitycheck.gstatic.com" {
-    url.redirect = (".*" => "http://192.168.12.1")
+    url.rewrite = (".*" => "http://192.168.12.1")
 }
 
 $HTTP["host"] =~ "www.msftconnecttest.com" {
-    url.redirect = (".*" => "http://192.168.12.1")
+    url.rewrite = (".*" => "http://192.168.12.1")
 }
 
 $HTTP["host"] =~ "msftconnecttest.com" {
-    url.redirect = (".*" => "http://192.168.12.1")
+    url.rewrite = (".*" => "http://192.168.12.1")
 }
 
 $HTTP["host"] =~ "clients3.google.com" {
-    url.redirect = (".*" => "http://192.168.12.1")
+    url.rewrite = (".*" => "http://192.168.12.1")
 }
 """
 
@@ -152,8 +154,10 @@ with open("/tmp/captive.conf", "w") as f:
 run("sudo mkdir -p /etc/lighttpd/conf-available", "STEP 5B: CAPTIVE")
 run("sudo mv /tmp/captive.conf /etc/lighttpd/conf-available/99-afribox-captive.conf", "STEP 5B: CAPTIVE")
 
-run("sudo lighty-enable-mod redirect", "STEP 5B: CAPTIVE")
-run("sudo lighty-enable-mod setenv", "STEP 5B: CAPTIVE")
+# run("sudo lighty-enable-mod redirect", "STEP 5B: CAPTIVE")
+# run("sudo lighty-enable-mod setenv", "STEP 5B: CAPTIVE")
+run("sudo apt install -y lighttpd-modules-simple", "STEP 5B: INSTALL MODULES")
+run("sudo lighty-enable-mod rewrite", "STEP 5B: CAPTIVE")
 
 # Enable config
 run("sudo ln -sf /etc/lighttpd/conf-available/99-afribox-captive.conf /etc/lighttpd/conf-enabled/", "STEP 5B: CAPTIVE")
