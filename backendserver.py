@@ -5,10 +5,11 @@ sudo systemctl daemon-reload
 sudo systemctl enable afriboxdaphne
 sudo systemctl start afriboxdaphne
 
-sudo cp deployment/websocket/nginx.conf /etc/nginx/sites-available/afribox
-sudo ln -s /etc/nginx/sites-available/afribox /etc/nginx/sites-enabled/afribox
-sudo nginx -t
-sudo systemctl restart nginx
+## NOTE: Nginx configuration is already included in the initial setup script.
+# sudo cp deployment/websocket/nginx.conf /etc/nginx/sites-available/afribox
+# sudo ln -s /etc/nginx/sites-available/afribox /etc/nginx/sites-enabled/afribox
+# sudo nginx -t
+# sudo systemctl restart nginx
 """
 
 
@@ -32,9 +33,5 @@ run("sudo cp deployment/websocket/afriboxdaphne.service /etc/systemd/system/afri
 run("sudo systemctl daemon-reload", "STEP 4: CONFIGURE DAPHNE")
 run("sudo systemctl enable afriboxdaphne", "STEP 4: CONFIGURE DAPHNE")
 run("sudo systemctl start afriboxdaphne", "STEP 4: CONFIGURE DAPHNE")
-run("sudo cp deployment/websocket/nginx.conf /etc/nginx/sites-available/afribox", "STEP 5: CONFIGURE NGINX")
-run("sudo ln -s /etc/nginx/sites-available/afribox /etc/nginx/sites-enabled/afribox", "STEP 5: CONFIGURE NGINX")
-run("sudo nginx -t", "STEP 5: CONFIGURE NGINX") 
-run("sudo systemctl restart nginx", "STEP 5: CONFIGURE NGINX") 
 
 print("\n✅ Afribox Backend Server setup complete!")
