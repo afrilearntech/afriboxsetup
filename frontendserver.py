@@ -27,7 +27,8 @@ run("sudo apt install -y nodejs", "Install Node.js")
 run("corepack enable", "Enable Corepack")
 
 # run("sudo npm install -g pm2", "Install PM2")
-run("sudo yarn install -g pm2", "Install PM2")
+# run("sudo yarn install -g pm2", "Install PM2")
+run("sudo yarn global add pm2", "Install PM2")
 
 # -----------------------------
 # 2. INSTALL DEPENDENCIES
