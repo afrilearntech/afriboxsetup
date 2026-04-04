@@ -24,17 +24,20 @@ print("🚀 Deploying Next.js Frontend for AfriBox...")
 # -----------------------------
 run("curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -", "Install NodeSource")
 run("sudo apt install -y nodejs", "Install Node.js")
-run("sudo npm install -g pm2", "Install PM2")
+run("corepack enable", "Enable Corepack")
+
+# run("sudo npm install -g pm2", "Install PM2")
+run("sudo yarn install -g pm2", "Install PM2")
 
 # -----------------------------
 # 2. INSTALL DEPENDENCIES
 # -----------------------------
-run(f"cd {APP_DIR} && npm install", "Install dependencies")
+run(f"cd {APP_DIR} && yarn install", "Install dependencies")
 
 # -----------------------------
 # 3. BUILD NEXT APP
 # -----------------------------
-run(f"cd {APP_DIR} && npm run build", "Build Next.js")
+run(f"cd {APP_DIR} && yarn build", "Build Next.js")
 
 # -----------------------------
 # 4. START NEXT WITH PM2
