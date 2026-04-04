@@ -1,125 +1,165 @@
 import subprocess
 import sys
-import os
 
 def run(cmd, step: str = ""):
-    print(f"\n {step.upper()} [RUNNING]: {cmd}")
+    print(f"\n🔹 {step.upper()} [RUNNING]: {cmd}")
     result = subprocess.run(cmd, shell=True)
     if result.returncode != 0:
-        print(f"[ERROR]: {cmd}")
+        print(f"❌ ERROR: {cmd}")
         sys.exit(1)
 
-HOTSPOT_INTERFACE = "wlo1" 
+# -----------------------------
+# CONFIG
+# -----------------------------
+HOTSPOT_INTERFACE = "wlo1"
 HOTSPOT_SSID = "Afribox"
 HOTSPOT_PASSWORD = "afribox-lr"
-
+HOTSPOT_IP = "192.168.12.1"
 
 print(f"🚀 Setting up {HOTSPOT_SSID} with Captive Portal...")
 
 # -----------------------------
-# 1. Update system
+# 1. SYSTEM UPDATE
 # -----------------------------
 run("sudo apt update", "STEP 1: UPDATE")
 run("sudo apt upgrade -y", "STEP 1: UPDATE")
 
 # -----------------------------
-# 2. Install packages
+# 2. INSTALL PACKAGES
 # -----------------------------
 packages = [
-    "dnsmasq",
     "lighttpd",
-    "network-manager"
+    "network-manager",
+    "iptables-persistent"
 ]
 
 run(f"sudo apt install -y {' '.join(packages)}", "STEP 2: INSTALL PACKAGES")
 
 # -----------------------------
-# 3. Setup Hotspot
+# 3. CONFIGURE NETWORKMANAGER DNS (FIX CONFLICT)
 # -----------------------------
-run("nmcli connection delete Afribox || true", "STEP 3: SETUP HOTSPOT")
+print("\n🌐 Configuring NetworkManager DNS...")
 
-run(f'nmcli connection add type wifi ifname {HOTSPOT_INTERFACE} con-name {HOTSPOT_SSID} autoconnect yes ssid {HOTSPOT_SSID}', "STEP 3: SETUP HOTSPOT")
-run(f"nmcli connection modify {HOTSPOT_SSID} 802-11-wireless.mode ap", "STEP 3: SETUP HOTSPOT")
-run(f"nmcli connection modify {HOTSPOT_SSID} ipv4.method shared", "STEP 3: SETUP HOTSPOT")
-run(f"nmcli connection modify {HOTSPOT_SSID} wifi-sec.key-mgmt wpa-psk", "STEP 3: SETUP HOTSPOT")
-run(f'nmcli connection modify {HOTSPOT_SSID} wifi-sec.psk "{HOTSPOT_PASSWORD}"', "STEP 3: SETUP HOTSPOT")
-run(f"nmcli connection up {HOTSPOT_SSID}", "STEP 3: SETUP HOTSPOT")
-
-# -----------------------------
-# 4. Configure DNS (FORCE REDIRECT)
-# -----------------------------
-dns_config = """
-interface={HOTSPOT_INTERFACE}
+dns_config = f"""
+# AfriBox DNS config
 dhcp-range=192.168.12.10,192.168.12.100,12h
+address=/#/{HOTSPOT_IP}
+"""
 
-# Redirect ALL domains to AfriBox
-address=/#/192.168.12.1
-""".format(HOTSPOT_INTERFACE=HOTSPOT_INTERFACE)
-
-with open("/tmp/dnsmasq.conf", "w") as f:
+with open("/tmp/afribox-dns.conf", "w") as f:
     f.write(dns_config)
 
-run("sudo mv /tmp/dnsmasq.conf /etc/dnsmasq.conf", "STEP 4: CONFIGURE DNS")
-run("sudo systemctl restart dnsmasq", "STEP 4: CONFIGURE DNS")
+run("sudo mkdir -p /etc/NetworkManager/dnsmasq.d", "STEP 3: DNS SETUP")
+run("sudo mv /tmp/afribox-dns.conf /etc/NetworkManager/dnsmasq.d/afribox.conf", "STEP 3: DNS SETUP")
+
+nm_conf = """
+[main]
+dns=dnsmasq
+"""
+
+with open("/tmp/NetworkManager.conf", "w") as f:
+    f.write(nm_conf)
+
+run("sudo mv /tmp/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf", "STEP 3: DNS SETUP")
+
+run("sudo systemctl restart NetworkManager", "STEP 3: DNS SETUP")
 
 # -----------------------------
-# 5. Setup Captive Portal Page
+# 4. SETUP HOTSPOT
 # -----------------------------
-html = """
+print("\n📡 Setting up hotspot...")
+
+run(f"nmcli connection delete {HOTSPOT_SSID} || true", "STEP 4: HOTSPOT")
+
+run(
+    f'nmcli connection add type wifi ifname {HOTSPOT_INTERFACE} '
+    f'con-name {HOTSPOT_SSID} autoconnect yes ssid {HOTSPOT_SSID}',
+    "STEP 4: HOTSPOT"
+)
+
+run(f"nmcli connection modify {HOTSPOT_SSID} 802-11-wireless.mode ap", "STEP 4: HOTSPOT")
+run(f"nmcli connection modify {HOTSPOT_SSID} ipv4.method shared", "STEP 4: HOTSPOT")
+run(f"nmcli connection modify {HOTSPOT_SSID} wifi-sec.key-mgmt wpa-psk", "STEP 4: HOTSPOT")
+run(f'nmcli connection modify {HOTSPOT_SSID} wifi-sec.psk "{HOTSPOT_PASSWORD}"', "STEP 4: HOTSPOT")
+
+run(f"nmcli connection up {HOTSPOT_SSID}", "STEP 4: HOTSPOT")
+
+# -----------------------------
+# 5. SETUP CAPTIVE PORTAL PAGE
+# -----------------------------
+print("\n🌍 Setting up captive portal page...")
+
+html = f"""
 <!DOCTYPE html>
 <html>
 <head>
 <title>AfriBox</title>
 <style>
-body { font-family: Arial; text-align: center; margin-top: 100px; }
-h1 { color: #2c3e50; }
+body {{
+    font-family: Arial;
+    text-align: center;
+    margin-top: 100px;
+}}
+h1 {{ color: #2c3e50; }}
 </style>
 </head>
 <body>
 <h1>Welcome to AfriBox</h1>
 <p>Your offline learning platform</p>
-<a href="http://lr.afribox.local">Enter Platform</a>
+<a href="http://{HOTSPOT_IP}">Enter Platform</a>
 </body>
 </html>
 """
 
-run("sudo mkdir -p /var/www/html")
+run("sudo mkdir -p /var/www/html", "STEP 5: PORTAL")
+
 with open("/tmp/index.html", "w") as f:
     f.write(html)
 
-run("sudo mv /tmp/index.html /var/www/html/index.html", "STEP 5: SETUP CAPTIVE PORTAL")
-run("sudo systemctl restart lighttpd", "STEP 5: SETUP CAPTIVE PORTAL")
+run("sudo mv /tmp/index.html /var/www/html/index.html", "STEP 5: PORTAL")
+run("sudo systemctl restart lighttpd", "STEP 5: PORTAL")
 
 # -----------------------------
-# 6. Enable IP forwarding
+# 6. ENABLE IP FORWARDING
 # -----------------------------
-run("sudo sysctl -w net.ipv4.ip_forward=1", "STEP 6: ENABLE IP FORWARDING")
+run("sudo sysctl -w net.ipv4.ip_forward=1", "STEP 6: IP FORWARDING")
+
+# Persist it
+run('echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf', "STEP 6: IP FORWARDING")
 
 # -----------------------------
-# 7. IPTABLES Redirect (CAPTIVE PORTAL)
+# 7. IPTABLES (CAPTIVE PORTAL REDIRECT)
 # -----------------------------
-run("sudo iptables -t nat -F", "STEP 7: IPTABLES REDIRECT")
+print("\n🔁 Setting up traffic redirect...")
+
+run("sudo iptables -t nat -F", "STEP 7: IPTABLES")
 
 # Redirect all HTTP traffic to portal
-run(f"sudo iptables -t nat -A PREROUTING -i {HOTSPOT_INTERFACE} -p tcp --dport 80 -j DNAT --to-destination 192.168.12.1:80", "STEP 7: IPTABLES REDIRECT")
+run(
+    f"sudo iptables -t nat -A PREROUTING -i {HOTSPOT_INTERFACE} "
+    f"-p tcp --dport 80 -j DNAT --to-destination {HOTSPOT_IP}:80",
+    "STEP 7: IPTABLES"
+)
 
-# Allow DNS
-run(f"sudo iptables -A INPUT -i {HOTSPOT_INTERFACE} -p udp --dport 53 -j ACCEPT", "STEP 7: IPTABLES REDIRECT")
+# Allow DNS traffic
+run(
+    f"sudo iptables -A INPUT -i {HOTSPOT_INTERFACE} -p udp --dport 53 -j ACCEPT",
+    "STEP 7: IPTABLES"
+)
+
+# Save rules
+run("sudo netfilter-persistent save", "STEP 7: IPTABLES")
 
 # -----------------------------
-# 8. Save iptables rules
+# 8. ENABLE SERVICES
 # -----------------------------
-run("sudo apt install -y iptables-persistent", "STEP 8: SAVE IPTABLES")
-run("sudo netfilter-persistent save", "STEP 8: SAVE IPTABLES")
+run("sudo systemctl enable NetworkManager", "STEP 8: SERVICES")
+run("sudo systemctl enable lighttpd", "STEP 8: SERVICES")
 
 # -----------------------------
-# 9. Enable services
+# DONE
 # -----------------------------
-run("sudo systemctl enable dnsmasq", "STEP 9: ENABLE SERVICES")
-run("sudo systemctl enable lighttpd", "STEP 9: ENABLE SERVICES")
-run("sudo systemctl enable NetworkManager", "STEP 9: ENABLE SERVICES")
-
-print("\n✅ Captive Portal Ready!")
+print("\n✅ AfriBox Captive Portal Ready!")
 print(f"📡 SSID: {HOTSPOT_SSID}")
 print(f"🔐 Password: {HOTSPOT_PASSWORD}")
-print("🌐 Portal: http://lr.afribox.local")
+print(f"🌐 Portal: http://{HOTSPOT_IP}")
