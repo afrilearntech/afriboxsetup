@@ -14,7 +14,8 @@ def run(cmd, step: str = ""):
 HOTSPOT_INTERFACE = "wlo1"
 HOTSPOT_SSID = "Afribox"
 HOTSPOT_PASSWORD = "afribox-lr"
-HOTSPOT_IP = "192.168.12.1"
+HOTSPOT_IP = "10.42.0.1"
+# HOTSPOT_IP = "192.168.12.1"
 
 print(f"🚀 Setting up {HOTSPOT_SSID} with NGINX Captive Portal...")
 
@@ -40,8 +41,9 @@ run(f"sudo apt install -y {' '.join(packages)}", "STEP 2: INSTALL PACKAGES")
 # -----------------------------
 print("\n🌐 Configuring DNS...")
 
+# dhcp-range=192.168.12.10,192.168.12.100,12h
 dns_config = f"""
-dhcp-range=192.168.12.10,192.168.12.100,12h
+dhcp-range=10.42.0.10,10.42.0.100,12h
 address=/#/{HOTSPOT_IP}
 address=/afribox.local/{HOTSPOT_IP}
 """

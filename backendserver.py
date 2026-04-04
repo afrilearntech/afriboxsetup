@@ -23,6 +23,11 @@ def run(cmd, step: str = ""):
         print(f"❌ ERROR: {cmd}")
         sys.exit(1)
 
+# pull latest code
+print("🚀 Pulling latest code from GitHub...")
+run("cd /afribox/elearncore && git pull origin main", "PULL LATEST CODE")
+
+
 print("🚀 Setting up Afribox Backend Server...")
 run("sudo apt update", "STEP 1: UPDATE")
 run("sudo apt install -y python3-pip nginx", "STEP 2: INSTALL PACKAGES")
