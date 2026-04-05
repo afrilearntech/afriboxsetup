@@ -32,12 +32,17 @@ run("cd /afribox/elearncore && pip install -r requirements.txt", "INSTALL REQUIR
 print("🚀 Setting up Afribox Backend Server...")
 run("sudo apt update", "STEP 1: UPDATE")
 run("sudo apt install -y python3-pip nginx", "STEP 2: INSTALL PACKAGES")
-run("sudo pip3 install daphne", "STEP 3: INSTALL DAPHNE")
+run("pip install daphne", "STEP 3: INSTALL DAPHNE")
 
 print("\n🔧 Configuring Daphne and Nginx...")
 run("sudo cp deployment/websocket/afriboxdaphne.service /etc/systemd/system/afriboxdaphne.service", "STEP 4: CONFIGURE DAPHNE")
 run("sudo systemctl daemon-reload", "STEP 4: CONFIGURE DAPHNE")
 run("sudo systemctl enable afriboxdaphne", "STEP 4: CONFIGURE DAPHNE")
 run("sudo systemctl start afriboxdaphne", "STEP 4: CONFIGURE DAPHNE")
+
+# Test + restart nginx
+run("sudo nginx -t", "Test Nginx")
+run("sudo systemctl restart nginx", "Restart Nginx")
+run("sudo systemctl enable nginx", "Enable Nginx")
 
 print("\n✅ Afribox Backend Server setup complete!")
