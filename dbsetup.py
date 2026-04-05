@@ -4,23 +4,12 @@ create_postgres_db.py
 
 Installs PostgreSQL and Redis on Ubuntu 25.xx, ensures services are running,
 creates a PostgreSQL role and database if they do not already exist, and
-installs Python packages required for Celery (into the system Python environment).
+installs Debian-packaged Python dependencies commonly used by Celery/Redis.
 
 Usage:
   sudo python3 create_postgres_db.py
 
-Configuration (edit below):
-  PG_VERSION        = ""            # left empty -> use distro 'postgresql' package
-  DB_SUPERUSER      = "dbadmin"
-  DB_SUPERUSER_PW   = "ChangeMe123!"
-  DB_NAME           = "my_database"
-  DB_ENCODING       = "UTF8"
-  DB_COLLATION      = "en_US.UTF-8"
-  DB_CTYPE          = "en_US.UTF-8"
-  DB_TEMPLATE       = "template0"
-  CREATE_IF_MISSING = True
-  INSTALL_PY_PKGS   = True          # install python3-venv, pip and celery/redis client packages system-wide
-  PYTHON_PKG_LIST   = ["celery", "redis"]  # pip packages to install (adjust as needed)
+Edit configuration below as needed.
 """
 
 import subprocess
@@ -32,7 +21,7 @@ import time
 # -------------------------
 # Config: change these
 # -------------------------
-PG_VERSION = ""
+PG_VERSION = ""  # use distro 'postgresql' package
 DB_SUPERUSER = "dbadmin"
 DB_SUPERUSER_PW = "ChangeMe123!"
 DB_NAME = "my_database"
@@ -41,8 +30,19 @@ DB_COLLATION = "en_US.UTF-8"
 DB_CTYPE = "en_US.UTF-8"
 DB_TEMPLATE = "template0"
 CREATE_IF_MISSING = True
-INSTALL_PY_PKGS = True
-PYTHON_PKG_LIST = ["celery", "redis"]
+INSTALL_PY_PKGS = True  # install Debian-packaged python3 libs (best-effort)
+DEBIAN_PY_PKGS = [
+    "python3-venv",
+    "python3-pip",
+    "python3-dev",
+    "build-essential",
+    # Celery/AMQP related (may not exist on all releases)
+    "python3-kombu",
+    "python3-amqp",
+    "python3-billiard",
+    # Redis client
+    "python3-redis",
+]
 # -------------------------
 
 def run(cmd, check=True, capture=False, env=None):
@@ -57,6 +57,19 @@ def apt_install(packages):
     run("apt-get update")
     run(["apt-get", "install", "-y"] + packages)
 
+def apt_install_best_effort(packages):
+    """
+    Try installing packages one-by-one so missing package names don't abort the whole script.
+    Prints warnings for packages that fail to install.
+    """
+    run("apt-get update")
+    for pkg in packages:
+        try:
+            print(f"Installing package: {pkg}")
+            run(["apt-get", "install", "-y", pkg])
+        except subprocess.CalledProcessError:
+            print(f"Warning: failed to install package '{pkg}'. It may not exist in distro repos.", file=sys.stderr)
+
 def is_root():
     return os.geteuid() == 0
 
@@ -65,17 +78,20 @@ def install_postgres():
     apt_install(packages)
 
 def install_redis():
-    # Install redis-server from distro packages
     apt_install(["redis-server"])
-    # Enable and start redis service
     run(["systemctl", "enable", "--now", "redis-server"])
 
-def install_python_packages():
-    # Install pip and venv prerequisites, then pip install celery & redis client
-    apt_install(["python3-venv", "python3-pip", "python3-dev", "build-essential"])
-    # Upgrade pip then install packages
-    run(["python3", "-m", "pip", "install", "--upgrade", "pip"])
-    run(["python3", "-m", "pip", "install"] + PYTHON_PKG_LIST)
+def install_python_packages_debian():
+    """
+    Install Debian-packaged Python dependencies for Celery/Redis.
+    Uses best-effort per-package install so missing names won't abort.
+    """
+    apt_install_best_effort(DEBIAN_PY_PKGS)
+    print("\nNote: If some packages were not available, create a virtualenv and install remaining packages inside it:")
+    print("  python3 -m venv /opt/elearn/venv")
+    print("  source /opt/elearn/venv/bin/activate")
+    print("  pip install --upgrade pip setuptools")
+    print("  pip install celery redis django\n")
 
 def ensure_service_running(service_name):
     run(["systemctl", "enable", "--now", service_name])
@@ -133,7 +149,7 @@ def main():
     # Wait briefly for postgres to initialize
     time.sleep(1)
 
-    print(f"Checking for role '{DB_SUPERUSER}'...")
+    print(f"Checking/creating role '{DB_SUPERUSER}'...")
     create_role_or_update(DB_SUPERUSER, DB_SUPERUSER_PW)
 
     print(f"Checking/creating database '{DB_NAME}'...")
@@ -143,8 +159,8 @@ def main():
     install_redis()
 
     if INSTALL_PY_PKGS:
-        print("Installing Python packages for Celery/Redis (system-wide pip)...")
-        install_python_packages()
+        print("Installing Debian-packaged Python libraries for Celery/Redis (best-effort)...")
+        install_python_packages_debian()
 
     print("\nDone.\n")
     print("Suggested .env entries for your Django app (replace placeholders):")
@@ -163,8 +179,9 @@ def main():
     print("CELERY_RESULT_BACKEND=django-db")
     print("")
     print("Notes:")
-    print("- The script installs celery & redis Python packages system-wide using pip; for production it's recommended to use a virtualenv or container.")
-    print("- Secure the printed passwords and move secrets to a safe vault; do not commit .env to VCS.")
+    print("- Debian package names vary by Ubuntu release; missing names are skipped with a warning.")
+    print("- Recommended: create a virtualenv for your app and install any remaining packages with pip inside it.")
+    print("- Secure printed passwords and do not commit .env to version control.")
 
 if __name__ == "__main__":
     main()
