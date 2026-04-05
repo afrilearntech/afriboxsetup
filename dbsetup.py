@@ -9,7 +9,7 @@ Usage:
   sudo python3 create_postgres_db.py
 
 Configuration (edit below):
-  PG_VERSION        = "16"           
+  PG_VERSION        = ""           
   DB_SUPERUSER      = "dbadmin" 
   DB_SUPERUSER_PW   = "ChangeMe123!" 
   DB_NAME           = "my_database"
@@ -29,7 +29,7 @@ import time
 # -------------------------
 # Config: change these
 # -------------------------
-PG_VERSION = "16"
+PG_VERSION = ""
 DB_SUPERUSER = "dbadmin"
 DB_SUPERUSER_PW = "ChangeMe123!"
 DB_NAME = "my_database"
@@ -57,7 +57,7 @@ def is_root():
 
 def install_postgres():
     # Install PostgreSQL server and client
-    packages = [f"postgresql-{PG_VERSION}", f"postgresql-client-{PG_VERSION}", "postgresql-contrib", "ca-certificates"]
+    packages = [f"postgresql", f"postgresql-client", "postgresql-contrib", "ca-certificates"]
     apt_install(packages)
 
 def ensure_service_running():
