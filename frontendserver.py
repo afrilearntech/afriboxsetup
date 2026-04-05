@@ -43,20 +43,20 @@ run(f"cd {APP_DIR} && yarn build", "Build Next.js")
 # -----------------------------
 # 4. START NEXT WITH PM2
 # -----------------------------
-run(f"pm2 delete afriboxui || true", "Clean old process")
+run(f"cd {APP_DIR} && pm2 delete afriboxui || true", "Clean old process")
 
 run(
-    f"pm2 start npm --name afriboxui -- start -- -p {NEXT_PORT}",
+    f"cd {APP_DIR} && pm2 start npm --name afriboxui -- start -- -p {NEXT_PORT}",
     "Start Next.js"
 )
 
-run("pm2 save", "Save PM2 state")
-run("pm2 startup systemd -u $USER --hp $HOME", "Enable PM2 startup")
+run(f"cd {APP_DIR} && pm2 save", "Save PM2 state")
+run(f"cd {APP_DIR} && pm2 startup systemd -u $USER --hp $HOME", "Enable PM2 startup")
 
 # -----------------------------
 # 5. INSTALL NGINX
 # -----------------------------
-run("sudo apt install -y nginx", "Install Nginx")
+run(f"cd {APP_DIR} && sudo apt install -y nginx", "Install Nginx")
 
 # -----------------------------
 # 6. NGINX CONFIG
