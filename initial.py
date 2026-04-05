@@ -15,7 +15,6 @@ HOTSPOT_INTERFACE = "wlo1"
 HOTSPOT_SSID = "Afribox"
 HOTSPOT_PASSWORD = "afribox-lr"
 HOTSPOT_IP = "10.42.0.1"
-# HOTSPOT_IP = "192.168.12.1"
 
 print(f"🚀 Setting up {HOTSPOT_SSID} with NGINX Captive Portal...")
 
@@ -45,7 +44,13 @@ print("\n🌐 Configuring DNS...")
 dns_config = f"""
 dhcp-range=10.42.0.10,10.42.0.100,12h
 address=/#/{HOTSPOT_IP}
-address=/afribox.local/{HOTSPOT_IP}
+address=/afribox.lan/{HOTSPOT_IP}
+address=/lr.afribox.lan/{HOTSPOT_IP}
+
+address=/connectivitycheck.gstatic.com/{HOTSPOT_IP}
+address=/clients3.google.com/{HOTSPOT_IP}
+address=/captive.apple.com/{HOTSPOT_IP}
+address=/www.msftconnecttest.com/{HOTSPOT_IP}
 """
 
 with open("/tmp/afribox-dns.conf", "w") as f:
@@ -95,7 +100,7 @@ html = f"""
 <html>
 <head>
 <title>AfriBox</title>
-<meta http-equiv="refresh" content="0; url=http://lr.afribox.local">
+<meta http-equiv="refresh" content="0; url=http://lr.afribox.lan">
 <style>
 body {{
     font-family: Arial;
@@ -200,4 +205,4 @@ print("\n✅ AfriBox Ready (NGINX MODE)!")
 print(f"📡 SSID: {HOTSPOT_SSID}")
 print(f"🔐 Password: {HOTSPOT_PASSWORD}")
 print("🌐 Auto popup enabled")
-print("🚀 App: http://lr.afribox.local")
+print("🚀 App: http://lr.afribox.lan")
