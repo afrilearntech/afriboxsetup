@@ -24,6 +24,7 @@ run("cd /afribox/elearncore && git pull origin main", "PULL LATEST CODE")
 
 # activate virtualenv and install requirements
 print("\n📦 Installing Python dependencies...")
+run("cd /afribox/elearncore && sudo apt install python3-venv -y", "INSTALL PYTHON3 VENV")
 run("cd /afribox/elearncore && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt", "INSTALL DEPENDENCIES")
 
 print("🚀 Setting up Afribox Backend Server...")
