@@ -12,7 +12,7 @@ def run(cmd, step=""):
 # CONFIG
 # -----------------------------
 APP_DIR = "/afribox/elearnui"
-NEXT_PORT = 3000
+NEXT_PORT = 3001
 DJANGO_PORT = 8001
 DOMAIN = "lr.afribox.local"
 HOTSPOT_IP = "10.42.0.1"
