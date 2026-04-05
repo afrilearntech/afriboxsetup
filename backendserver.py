@@ -16,6 +16,7 @@ def run(cmd, step: str = ""):
     result = subprocess.run(cmd, shell=True)
     if result.returncode != 0:
         print(f"❌ ERROR: {cmd}")
+        print(f"Working directory: {subprocess.run('pwd', shell=True, capture_output=True).stdout.decode().strip()}")
         sys.exit(1)
 
 # pull latest code
