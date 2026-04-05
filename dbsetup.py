@@ -9,7 +9,7 @@ Usage:
   sudo python3 create_postgres_db.py
 
 Configuration (edit below):
-  PG_VERSION        = "18"           
+  PG_VERSION        = "16"           
   DB_SUPERUSER      = "dbadmin" 
   DB_SUPERUSER_PW   = "ChangeMe123!" 
   DB_NAME           = "my_database"
@@ -29,7 +29,7 @@ import time
 # -------------------------
 # Config: change these
 # -------------------------
-PG_VERSION = "18"
+PG_VERSION = "16"
 DB_SUPERUSER = "dbadmin"
 DB_SUPERUSER_PW = "ChangeMe123!"
 DB_NAME = "my_database"
