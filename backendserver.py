@@ -22,6 +22,9 @@ def run(cmd, step: str = ""):
 print("🚀 Pulling latest code from GitHub...")
 run("cd /afribox/elearncore && git pull origin main", "PULL LATEST CODE")
 
+# activate virtualenv and install requirements
+print("\n📦 Installing Python dependencies...")
+run("cd /afribox/elearncore && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt", "INSTALL DEPENDENCIES")
 
 print("🚀 Setting up Afribox Backend Server...")
 run("sudo apt update", "STEP 1: UPDATE")
