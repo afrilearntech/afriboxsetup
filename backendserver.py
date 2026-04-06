@@ -2,6 +2,7 @@ import subprocess
 import sys
 
 PROJECT_DIR = "/afribox/elearncore"
+DEPLOYMENT_DIR = f"/afribox/afriboxsetup/deployment"
 VENV_DIR = f"{PROJECT_DIR}/venv"
 PYTHON = f"{VENV_DIR}/bin/python"
 PIP = f"{VENV_DIR}/bin/pip"
@@ -53,7 +54,7 @@ run(f"{PIP} install daphne", "INSTALL DAPHNE")
 # -----------------------------
 print("\n🔧 Configuring Daphne service...")
 
-run("sudo cp /afribox/elearncore/deployment/websocket/afriboxdaphne.service /etc/systemd/system/", "COPY SERVICE")
+run(f"sudo cp {DEPLOYMENT_DIR}/websocket/afriboxdaphne.service /etc/systemd/system/", "COPY SERVICE")
 
 run("sudo systemctl daemon-reload", "RELOAD SYSTEMD")
 run("sudo systemctl enable afriboxdaphne", "ENABLE DAPHNE")
