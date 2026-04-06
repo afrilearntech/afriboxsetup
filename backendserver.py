@@ -29,6 +29,10 @@ run("cd /afribox/elearncore && sudo apt install python3-venv -y", "INSTALL PYTHO
 run("cd /afribox/elearncore && python3 -m venv venv && source venv/bin/activate", "CREATE AND ACTIVATE VIRTUAL ENV")
 run("cd /afribox/elearncore && pip install --upgrade pip setuptools", "UPGRADE PIP")
 run("cd /afribox/elearncore && pip install -r requirements.txt", "INSTALL REQUIREMENTS")
+# migrate database
+print("\n🗄️  Migrating database...")
+run("cd /afribox/elearncore && python manage.py makemigrations", "MIGRATE DATABASE")
+run("cd /afribox/elearncore && python manage.py migrate", "MIGRATE DATABASE")
 print("🚀 Setting up Afribox Backend Server...")
 run("sudo apt update", "STEP 1: UPDATE")
 run("sudo apt install -y python3-pip nginx", "STEP 2: INSTALL PACKAGES")
