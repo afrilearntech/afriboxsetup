@@ -45,6 +45,13 @@ run(f"{PYTHON} {PROJECT_DIR}/manage.py makemigrations", "MAKEMIGRATIONS")
 run(f"{PYTHON} {PROJECT_DIR}/manage.py migrate", "MIGRATE")
 
 # -----------------------------
+# collect static files
+# -----------------------------
+print("\n📦 Collecting static files...")
+
+run(f"{PYTHON} {PROJECT_DIR}/manage.py collectstatic --noinput", "COLLECT STATIC FILES")
+
+# -----------------------------
 # 5. Install Daphne
 # -----------------------------
 run(f"{PIP} install daphne", "INSTALL DAPHNE")
