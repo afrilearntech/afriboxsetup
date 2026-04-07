@@ -108,6 +108,19 @@ server {{
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }}
+
+    # Serve Django MEDIA_URL (/assets/) directly from disk
+    location /assets/ {{
+        root /afribox/elearncore;
+        try_files $uri =404;
+    }}
+
+    # (Optional) Serve collected staticfiles if needed
+    location /staticfiles/ {{
+        root /afribox/elearncore;
+        try_files $uri =404;
+    }}
+
 }}
 """
 
