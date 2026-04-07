@@ -14,7 +14,7 @@ def run(cmd, step=""):
 APP_DIR = "/afribox/elearnui"
 NEXT_PORT = 3001
 DJANGO_PORT = 8001
-DOMAIN = "lr.afribox.local"
+DOMAIN = "lr.afribox.lan"
 HOTSPOT_IP = "10.42.0.1"
 
 print("🚀 Deploying Next.js Frontend for AfriBox...")
