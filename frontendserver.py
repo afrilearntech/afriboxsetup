@@ -31,8 +31,9 @@ run("corepack enable", "Enable Corepack")
 run("sudo yarn global add pm2", "Install PM2")
 
 # -----------------------------
-# 2. INSTALL DEPENDENCIES
+# 2. PULL AND INSTALL DEPENDENCIES
 # -----------------------------
+run(f"cd {APP_DIR} && git pull origin main", "Pull latest changes")
 run(f"cd {APP_DIR} && yarn install", "Install dependencies")
 
 # -----------------------------
