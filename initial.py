@@ -100,7 +100,7 @@ html = f"""
 <html>
 <head>
 <title>AfriBox</title>
-<meta http-equiv="refresh" content="0; url=http://lr.afribox.lan">
+<meta http-equiv="refresh" content="0; url={HOTSPOT_IP}">
 <style>
 body {{
     font-family: Arial;
@@ -162,7 +162,7 @@ server {{
     # Main routing
 
     location / {{
-        if ($host = "lr.afribox.local") {{
+        if ($host = "lr.afribox.lan") {{
             proxy_pass http://afrilearn_app;
             break;
         }}
