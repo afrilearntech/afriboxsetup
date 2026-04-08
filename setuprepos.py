@@ -29,10 +29,19 @@ run(f"sudo mkdir -p {DATA_DIR}", "STEP 2: MAKE DATA DIR")
 run(f"sudo mkdir -p {DATA_DIR}/logs", "STEP 2: MAKE LOGS DIR")
 
 if SETUP_REPO:
-    run(f"cd {PROJECT_DIR} && sudo git clone {SETUP_REPO}", "STEP 3: CLONE SETUP REPO")
+    try:
+        run(f"cd {PROJECT_DIR} && sudo rm -rf afriboxsetup", "STEP 3: CLEAN OLD SETUP REPO")
+    except Exception as e:
+        print(f"⚠️ WARNING: Could not clean old setup repo: {e}")
 if FRONTEND_REPO:
-    run(f"cd {PROJECT_DIR} && sudo git clone {FRONTEND_REPO}", "STEP 3: CLONE FRONTEND REPO")
+    try:
+        run(f"cd {PROJECT_DIR} && sudo rm -rf elearnui", "STEP 3: CLEAN OLD FRONTEND REPO")
+    except Exception as e:
+        print(f"⚠️ WARNING: Could not clean old frontend repo: {e}")
 if BACKEND_REPO:
-    run(f"cd {PROJECT_DIR} && sudo git clone {BACKEND_REPO}", "STEP 3: CLONE BACKEND REPO")
+    try:
+        run(f"cd {PROJECT_DIR} && sudo rm -rf elearncore", "STEP 3: CLEAN OLD BACKEND REPO")
+    except Exception as e:
+        print(f"⚠️ WARNING: Could not clean old backend repo: {e}")
 
 print("\n✅ Repositories setup complete!")
