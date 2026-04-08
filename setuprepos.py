@@ -33,15 +33,18 @@ if SETUP_REPO:
         run(f"cd {PROJECT_DIR} && sudo rm -rf afriboxsetup", "STEP 3: CLEAN OLD SETUP REPO")
     except Exception as e:
         print(f"⚠️ WARNING: Could not clean old setup repo: {e}")
+    run(f"cd {PROJECT_DIR} && sudo git clone {SETUP_REPO}", "STEP 3: CLONE SETUP REPO")
 if FRONTEND_REPO:
     try:
         run(f"cd {PROJECT_DIR} && sudo rm -rf elearnui", "STEP 3: CLEAN OLD FRONTEND REPO")
     except Exception as e:
         print(f"⚠️ WARNING: Could not clean old frontend repo: {e}")
+    run(f"cd {PROJECT_DIR} && sudo git clone {FRONTEND_REPO}", "STEP 3: CLONE FRONTEND REPO")
 if BACKEND_REPO:
     try:
         run(f"cd {PROJECT_DIR} && sudo rm -rf elearncore", "STEP 3: CLEAN OLD BACKEND REPO")
     except Exception as e:
         print(f"⚠️ WARNING: Could not clean old backend repo: {e}")
+    run(f"cd {PROJECT_DIR} && sudo git clone {BACKEND_REPO}", "STEP 3: CLONE BACKEND REPO")
 
 print("\n✅ Repositories setup complete!")
